@@ -26,6 +26,7 @@
 2. React-Native-Splashscreen[GitHub](https://github.com/remobile/react-native-splashscreen)
 3. React-Native-Sqlite-Storage[GitHub](https://github.com/andpor/react-native-sqlite-storage)
 4. React-Natiev-ActionButton(存在bug，如果运行报错，可在``/src/scenes/chatpage``删除相关组件。)[GitHub](https://github.com/mastermoo/react-native-action-button)
+
 ### Server
 1. 安装mongo数据库，创建``/data/db``文件夹
 2. 运行``./bin/www``开启服务器
@@ -37,13 +38,16 @@
 客户端数据库使用SQLite，服务器端使用Mongo。
 * [react-native-sqlite-storage](https://github.com/andpor/react-native-sqlite-storage)
 * [Cordova-sqlite-storage](https://github.com/jbrodriguez/react-native-android-sqlite)
+
 ### Alt
 Socket.io在程序运行时建立，监听private message事件。由于不确定此时用户处于什么界面，所以使用alt保存消息状态，再做处理。[GitHub](https://github.com/goatslacker/alt)
+
 ### React-Native-Socket.io
 使用原生socket.io-client [stackoverflow](http://stackoverflow.com/questions/29408492/is-it-possible-to-combine-react-native-with-socket-io)  
 **BUG** : 需开启Debug JS Remotly后才能建立服务器连接。
 
 ## Reference
 1. [awesome-react-native](https://github.com/jondot/awesome-react-native)
+
 ## Xmind
-![](../xmind.svg)
+![](./xmind.svg)
