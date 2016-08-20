@@ -1,0 +1,16 @@
+body {
+  padding: 50px;
+  font: 14px "Lucida Grande", Helvetica, Arial, sans-serif;
+}
+
+a {
+  color: #00B7FF;
+}
+input::-webkit-input-placeholder {
+  color: #999;
+  -webkit-transition: color.5s;
+}
+input:focus::-webkit-input-placeholder, input:hover::-webkit-input-placeholder {
+  color: #c2c2c2;
+  -webkit-transition: color.5s;
+}

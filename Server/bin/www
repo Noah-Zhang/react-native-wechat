@@ -1,0 +1,176 @@
+#!/usr/bin/env node
+
+/**
+ * Module dependencies.
+ */
+var User = require('../model/user');
+var crypto = require('crypto');
+var jwt = require('jsonwebtoken');
+var app = require('../app');
+var debug = require('debug')('Chat:server');
+var http = require('http');
+/**
+ * Get port from environment and store in Express.
+ */
+
+var port = normalizePort(process.env.PORT || '3000');
+app.set('port', port);
+
+/**
+ * Create HTTP server.
+ */
+
+var server = http.createServer(app);
+server.listen(port);
+var io=require('socket.io')(server);
+var count=0;
+//在线用户的socket.id
+var onLineList=new Map();
+io.on('connection',function (socket) {
+    console.log('a user connected..'+':'+socket.id);
+    ++count;
+    //onLineList.add(socket.id);
+    //arr=Array.from(onLineList);
+    //
+    // console.log(req.session.user);
+    //exports.arr=arr;
+    //console.log(arr);
+    // console.log(socket);
+
+    socket.on('private message',function (msg) {
+        console.log(msg.msgContent+' to '+msg.toUserId);
+        var toUserSocketId = onLineList.get(msg.toUserId);
+        var timestamp = Date.parse(new Date());
+        var newMessage = {
+            toUserId: msg.fromUserId,
+            fromUserId: msg.toUserId,
+            key: timestamp + msg.msgContent,
+            timestamp: timestamp,
+            userType: 0,
+            msgContent: msg.msgContent,
+            msgType: 'text'
+        };
+        if (toUserSocketId==null){
+            // TODO 转入消息队列
+            console.log(msg.toUserId+'用户不在线');
+            socket.emit('private message','offLine');
+        }else {
+            if (socket.id == toUserSocketId) {
+                console.log('equal');
+                console.log(msg.msgContent);
+                socket.emit('private message', newMessage);
+            } else {
+                console.log('from' + msg.fromUserId + "to" + msg.toUserId + '--------');
+                //socket.to(socket.id).emit('private message','to:'+id+':'+msg);
+                socket.to(toUserSocketId).emit('private message', newMessage);
+            }
+        }
+
+    });
+
+    socket.on('checkLogin',function (id,password) {
+        var md5 = crypto.createHash('md5');
+        var md5Password = md5.update(password).digest('hex');
+        User.get(id, function (err, user) {
+            if (!user) {
+                console.log('用户不存在');
+                socket.emit('checkLogin','用户不存在');
+            }else if(user.password!=md5Password){
+                console.log('密码错误');
+                socket.emit('checkLogin','密码错误');
+            }else{
+                console.log('登录成功');
+                onLineList.set(id , socket.id);
+                console.log(onLineList);
+                //var token = jwt.sign({id:id, password: md5Password}, settings.cookieSecret, {expiresIn: 3600000});
+                socket.emit('checkLogin','success');
+            }
+
+        });
+    });
+
+    socket.on('disconnect',function(){
+        console.log('a user disconnected..');
+        // onLineList.remove(socket.id);
+        onLineList.delete(socket.id);
+        console.log(onLineList);
+        // remove(onLineList,socket.id);
+        // socket.emit('onLine',arr);
+        // console.log(onLineList);
+        console.log('------'+--count+'------------');
+    });
+});
+
+
+
+/**
+ * Listen on provided port, on all network interfaces.
+ */
+
+
+server.on('error', onError);
+server.on('listening', onListening);
+
+module.exports=io;
+
+
+
+/**
+ * Normalize a port into a number, string, or false.
+ */
+
+function normalizePort(val) {
+  var port = parseInt(val, 10);
+
+  if (isNaN(port)) {
+    // named pipe
+    return val;
+  }
+
+  if (port >= 0) {
+    // port number
+    return port;
+  }
+
+  return false;
+}
+
+/**
+ * Event listener for HTTP server "error" event.
+ */
+
+function onError(error) {
+  if (error.syscall !== 'listen') {
+    throw error;
+  }
+
+  var bind = typeof port === 'string'
+    ? 'Pipe ' + port
+    : 'Port ' + port;
+
+  // handle specific listen errors with friendly messages
+  switch (error.code) {
+    case 'EACCES':
+      console.error(bind + ' requires elevated privileges');
+      process.exit(1);
+      break;
+    case 'EADDRINUSE':
+      console.error(bind + ' is already in use');
+      process.exit(1);
+      break;
+    default:
+      throw error;
+  }
+}
+
+/**
+ * Event listener for HTTP server "listening" event.
+ */
+
+function onListening() {
+  var addr = server.address();
+  var bind = typeof addr === 'string'
+    ? 'pipe ' + addr
+    : 'port ' + addr.port;
+  debug('Listening on ' + bind);
+}

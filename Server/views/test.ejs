@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>test</title>
+    <script src="/socket.io/socket.io.js"></script>
+    <script src="http://code.jquery.com/jquery-1.11.1.js"></script>
+    <script>
+//        function append() {
+//            $("div").append($('<p></p>')).text(123);
+//
+//        }
+
+        function get() {
+            $.get('chat',function (data,status) {
+                alert(status);
+                $("div").append("<p></p>").text(data);
+            })
+        }
+        function post() {
+            $.ajax({
+                type:'GET',
+                url:'http://localhost:3000/chat',
+                success:function (data) {
+                    alert(data);
+                    $("div").append("<p></p>").text(data);
+                }
+            })
+        }
+    </script>
+</head>
+<body>
+    <p>this is test </p>
+    <div style="width: auto;min-height: 300px; height: auto;min-width: 100px; border:solid; border-color: #00B7FF";></div>
+    <button onclick="get()">get</button>
+    <button onclick="post()">post</button>
+</body>
+</html>

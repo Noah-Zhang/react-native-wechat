@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>chat</title>
+    <script src="/socket.io/socket.io.js"></script>
+    <script src="http://code.jquery.com/jquery-1.11.1.js"></script>
+    <!--<script src="/Users/makisucruse/Downloads/jquery-1.11.1.min.js"></script>-->
+    <script>
+        function get() {
+            $.ajax({
+                type:'GET',
+                url:'http://localhost:3000/data',
+                success:function (data) {
+//                    alert(data);
+//                    console.log(data);
+                    //后面会用到..
+//                    btn = '<button onclick="sendPrivate('+i+')" id=btn_'+i+'>'+data[i]+'</button>'
+//                    alert(data.toString());
+                    var reg=/,/;
+                    var data=data.toString().split(reg);
+                    $("#onLine").text("");
+                    for (var i=0;i<data.length;i++){
+                        $("#onLine").append('<button onclick="sendPrivate('+i+')"id=btn_'+i+'>'+data[i]+'</button>');
+                    }
+                }
+            })
+        }
+    </script>
+    <script>
+        var socket=io();
+//        $(document).ready(function () {
+//            socket.on('onLine',function (onLineList) {
+////                console.log(typeof onLineList);
+//                $("div").append("<p></p>").text(onLineList);
+//            });
+//        })
+
+        function jump(){
+//            var msg={ToUserName:}
+            socket.emit('public message',$("#msg").val());
+            $("#msg").val('');
+//            socket.emit('private message',$("#id").val(),$("#msg").val());
+        }
+
+        function sendPrivate(i) {
+            var btn='#btn_'+i;
+//            alert($(btn).text());
+//            alert($("#msg").val()==null);
+            //null 和""的区别
+            if($("#msg").val()==""){
+                alert('msg should not be blank..');
+            }else{
+                socket.emit('private message',$(btn).text(),$("#msg").val());
+                $("#msg").val("");
+                $("#msg").css({"color":"red","border":"2px solid red"});
+            }
+        }
+
+//        function private() {
+//            socket.emit('private message',$("#id").val(),$("#msg").val());
+//        }
+        socket.on('private message',function (msg) {
+
+                    $("#message").append($('<li>').text(msg));
+        });
+        socket.on('public message',function (msg) {
+            $("#message").append($('<li>').text(msg));
+        });
+    </script>
+</head>
+<body>
+    <p>welcome to chat,<%=title%></p>
+    <ul id="message"></ul>
+    <!--<input id="id" type="text" autocomplete="off" placeholder="id">-->
+    <input id="msg" type="text" autocomplete="off" placeholder="msg"/><br/>
+    <button onclick="jump()">send</button><br/>
+    <!--<button onclick="private()">sendPrivate</button><br/>-->
+    <a href="/logout">退出登录</a><br/>
+    <!--<div id="div" style="width: auto;height: auto;min-width: 50px;min-height: 100px; border-style:solid;border-width:1px;border-height:1px;border-color: #00B7FF">-->
+    <!--</div>-->
+    OnlineList,点击刷新,填好内容点击下面按钮即给该对象发私信
+    <ul id="onLine"></ul>
+    <button onclick="get()">ajaxGet</button>
+</body>
+</html>
