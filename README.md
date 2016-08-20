@@ -1,4 +1,4 @@
-# IE-Terminal
+# Chat
 一个模仿微信实现实时通讯的React-Native项目，使用WebSocket实现数据传输，使用React-Native-Material-Design模板。
 ![](./Screenshot_1.png)
 ![](./Screenshot_2.png)
